@@ -4,6 +4,12 @@ import httpx
 
 def main():
     with httpx.Client(base_url="http://127.0.0.1:8000", timeout=10) as client:
+        response = client.get("/")
+        assert response.status_code == 200 and '<html lang="ko">' in response.text
+        for asset, content_type in (("app.js", "javascript"), ("style.css", "text/css")):
+            response = client.get(f"/static/{asset}")
+            assert response.status_code == 200 and content_type in response.headers["content-type"]
+        print("root/static assets -> PASS")
         response = client.get("/api/meta")
         assert response.status_code == 200, response.text
         assert response.json()["item"]["label"] == "품목"
